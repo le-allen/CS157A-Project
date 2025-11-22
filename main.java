@@ -7,7 +7,7 @@ public class main {
 
         String url = "jdbc:mysql://localhost:3306/pet_project";
         String username = "root";
-        String password = "yourpassword";
+        String password = "C3TK13@sql";
         Class.forName("com.mysql.cj.jdbc.Driver");
 
         System.out.println("Hello, Welcome to the CS157a Pet Adoption System!");
@@ -23,17 +23,74 @@ public class main {
             System.out.println("Tables: Pet, Medical History, Adopter, Adoption, Shelter, Foster Home, Foster Assignment");
             input = scnr.nextLine();
 
-            System.out.println("Here is the " + input + " data:");
             Connection myCon = DriverManager.getConnection(url, username, password);
 
             String sql = "SELECT * FROM " + input;
             PreparedStatement ps = myCon.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
 
-            while (rs.next()) {
-                System.out.println("");
+            if (input.equalsIgnoreCase("pet")) {
+                System.out.println("Here is the " + input + " data:");
+                while (rs.next()) {
+                    System.out.println(rs.getInt("PetID") + "\t" +
+                                        rs.getInt("ShelterID") + "\t" + 
+                                        rs.getString("Name") + "\t" + 
+                                        rs.getString("Species") + "\t" + 
+                                        rs.getInt("Age") + "\t" + 
+                                        rs.getString("Status") + "\t");
+                }
             }
-
+            else if (input.equalsIgnoreCase("medical history")) {
+                System.out.println("Here is the " + input + " data:");
+                while (rs.next()) {
+                    System.out.println(rs.getInt("PetID") + "\t" +
+                                        rs.getString("HealthStatus") + "\t" + 
+                                        rs.getBoolean("VaccinationStatus") + "\t");
+                }
+            }
+            else if (input.equalsIgnoreCase("adopter")) {
+                System.out.println("Here is the " + input + " data:");
+                while (rs.next()) {
+                    System.out.println(rs.getInt("AdopterID") + "\t" +
+                                        rs.getString("Name") + "\t" + 
+                                        rs.getString("Number") + "\t");
+                }
+            }
+            else if (input.equalsIgnoreCase("adoption")) {
+                System.out.println("Here is the " + input + " data:");
+                while (rs.next()) {
+                    System.out.println(rs.getInt("PetID") + "\t" +
+                                        rs.getInt("AdopterID") + "\t" + 
+                                        rs.getDate("AdoptionDate") + "\t");
+                }
+            }
+            else if (input.equalsIgnoreCase("shelter")) {
+                System.out.println("Here is the " + input + " data:");
+                while (rs.next()) {
+                    System.out.println(rs.getInt("ShelterID") + "\t" +
+                                        rs.getString("Address") + "\t");
+                }
+            }
+            else if (input.equalsIgnoreCase("foster home")) {
+                System.out.println("Here is the " + input + " data:");
+                while (rs.next()) {
+                    System.out.println(rs.getInt("FosterID") + "\t" +
+                                        rs.getString("Address") + "\t" +
+                                        rs.getString("Number") + "\t");
+                }
+            }
+            else if (input.equalsIgnoreCase("foster assignment")) {
+                System.out.println("Here is the " + input + " data:");
+                while (rs.next()) {
+                    System.out.println(rs.getInt("FosterID") + "\t" +
+                                        rs.getInt("PetID") + "\t" + 
+                                        rs.getDate("StateDate") + "\t" + 
+                                        rs.getDate("EndDate") + "\t");
+                }
+            }
+            else {
+                System.out.println("Sorry, that table does not exist. Please try again:");
+            }
             myCon.close();
 
         }
