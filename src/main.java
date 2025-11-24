@@ -8,7 +8,7 @@ public class Main {
 
         String url = "jdbc:mysql://localhost:3306/pet_project";
         String username = "root";
-        String password = "Anan@0322N99";
+        String password = "pwd";
         Class.forName("com.mysql.cj.jdbc.Driver");
 
         System.out.println("Hello, Welcome to the CS157a Pet Adoption System!");
