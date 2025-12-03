@@ -4,7 +4,6 @@ import java.util.Scanner;
 public class main {
     
     public static void main(String[] args) throws Exception {
-
         String url = "jdbc:mysql://localhost:3306/pet_project";
         String username = "root";
         String password = "password";
@@ -22,7 +21,7 @@ public class main {
             if (input.equalsIgnoreCase("view data")) {
                 while (!input.equalsIgnoreCase("back")) {
                     System.out.println("Which data would you like to view?");
-                    System.out.println("Tables: Pet, MedicalHistory, Adopter, Adoption, Shelter, FosterHome, FosterAssignment");
+                    System.out.println("Tables: \n" + "\t1. Pet \n" + "\t2. MedicalHistory \n" + "\t3. Adopter \n" + "\t4. Adoption \n" + "\t5. Shelter \n" + "\t6. FosterHome \n" + "\t7. FosterAssignment \n");
                     System.out.println("*Type 'back' if you would like to return");
                     input = scnr.nextLine();
 
@@ -37,7 +36,7 @@ public class main {
                         ResultSet rs = ps.executeQuery();
                         System.out.println();
 
-                        if (input.equalsIgnoreCase("pet")) {
+                        if (input.equalsIgnoreCase("pet") || input.equalsIgnoreCase("1")) {
                             System.out.println("Here is the " + input + " data:");
                             System.out.println("PetID:" + "\t" + "ShelterID:" + "\t" + "Name:" + "\t" + "Species:" + "\t" + "Age:" + "\t" + "Status:" + "\t");
                             while (rs.next()) {
@@ -49,7 +48,7 @@ public class main {
                                                     rs.getString("Status") + "\t");
                             }
                         }
-                        else if (input.equalsIgnoreCase("medicalhistory")) {
+                        else if (input.equalsIgnoreCase("medicalhistory") || input.equalsIgnoreCase("2")) {
                             System.out.println("Here is the " + input + " data:");
                             System.out.println("PetID:" + "\t" + "HealthStatus:" + "\t" + "VaccinationStatus:" + "\t");
                             while (rs.next()) {
@@ -58,7 +57,7 @@ public class main {
                                                     rs.getBoolean("VaccinationStatus") + "\t");
                             }
                         }
-                        else if (input.equalsIgnoreCase("adopter")) {
+                        else if (input.equalsIgnoreCase("adopter") || input.equalsIgnoreCase("3")) {
                             System.out.println("Here is the " + input + " data:");
                             System.out.println("AdopterID:" + "\t" + "Name:" + "\t" + "Number:" + "\t");
                             while (rs.next()) {
@@ -67,7 +66,7 @@ public class main {
                                                     rs.getString("Number") + "\t");
                             }
                         }
-                        else if (input.equalsIgnoreCase("adoption")) {
+                        else if (input.equalsIgnoreCase("adoption") || input.equalsIgnoreCase("4")) {
                             System.out.println("Here is the " + input + " data:");
                             System.out.println("PetID:" + "\t" + "AdopterID:" + "\t" + "AdoptionDate:" + "\t");
                             while (rs.next()) {
@@ -76,7 +75,7 @@ public class main {
                                                     rs.getDate("AdoptionDate") + "\t");
                             }
                         }
-                        else if (input.equalsIgnoreCase("shelter")) {
+                        else if (input.equalsIgnoreCase("shelter") || input.equalsIgnoreCase("5")) {
                             System.out.println("Here is the " + input + " data:");
                             System.out.println("ShelterID:" + "\t" + "Address:" + "\t");
                             while (rs.next()) {
@@ -84,7 +83,7 @@ public class main {
                                                     rs.getString("Address") + "\t");
                             }
                         }
-                        else if (input.equalsIgnoreCase("fosterhome")) {
+                        else if (input.equalsIgnoreCase("fosterhome") || input.equalsIgnoreCase("6")) {
                             System.out.println("Here is the " + input + " data:");
                             System.out.println("FosterID:" + "\t" + "Address:" + "\t" + "Number:" + "\t");
                             while (rs.next()) {
@@ -93,7 +92,7 @@ public class main {
                                                     rs.getString("Number") + "\t");
                             }
                         }
-                        else if (input.equalsIgnoreCase("fosterassignment")) {
+                        else if (input.equalsIgnoreCase("fosterassignment") || input.equalsIgnoreCase("7")) {
                             System.out.println("Here is the " + input + " data:");
                             System.out.println("FosterID:" + "\t" + "PetID:" + "\t" + "StartDate:" + "\t" + "EndDate:" + "\t");
                             while (rs.next()) {
@@ -125,7 +124,7 @@ public class main {
             else if (input.equalsIgnoreCase("update")) {
                 while (!input.equalsIgnoreCase("back")) {
                     System.out.println("Please enter the following table to update: ");
-                    System.out.println("Tables: Pet, MedicalHistory, Adopter, Adoption, Shelter, FosterHome, FosterAssignment");
+                    System.out.println("Tables: \n" + "\t1. Pet \n" + "\t2. MedicalHistory \n" + "\t3. Adopter \n" + "\t4. Adoption \n" + "\t5. Shelter \n" + "\t6. FosterHome \n" + "\t7. FosterAssignment \n");
                     System.out.println("*Type 'back' if you would like to return");
                     input = scnr.nextLine();
 
@@ -133,7 +132,7 @@ public class main {
                         break;
                     }
 
-                    if (input.equalsIgnoreCase("pet")) {
+                    if (input.equalsIgnoreCase("pet") || input.equalsIgnoreCase("1")) {
                         System.out.println("Which pet would you like to update: ");
                         System.out.print("PetID: ");
                         int id = scnr.nextInt();
@@ -219,7 +218,7 @@ public class main {
                             System.out.println(e.getMessage());
                         }
                     }
-                    else if (input.equalsIgnoreCase("medicalhistory")) {
+                    else if (input.equalsIgnoreCase("medicalhistory") || input.equalsIgnoreCase("2")) {
                         System.out.println("Which pet would you like to update: ");
                         System.out.print("PetID: ");
                         int id = scnr.nextInt();
@@ -276,7 +275,7 @@ public class main {
                             System.out.println(e.getMessage());
                         }
                     }
-                    else if (input.equalsIgnoreCase("adopter")) {
+                    else if (input.equalsIgnoreCase("adopter") || input.equalsIgnoreCase("3")) {
                         System.out.println("Which adopter would you like to update: ");
                         System.out.print("AdopterID: ");
                         int id = scnr.nextInt();
@@ -328,7 +327,7 @@ public class main {
                             System.out.println(e.getMessage());
                         }
                     }
-                    else if (input.equalsIgnoreCase("adoption")) {
+                    else if (input.equalsIgnoreCase("adoption") || input.equalsIgnoreCase("4")) {
                         System.out.println("Which adoption would you like to update: ");
                         System.out.print("PetID: ");
                         int id = scnr.nextInt();
@@ -374,7 +373,7 @@ public class main {
                             System.out.println(e.getMessage());
                         }
                     }
-                    else if (input.equalsIgnoreCase("shelter")) {
+                    else if (input.equalsIgnoreCase("shelter") || input.equalsIgnoreCase("5")) {
                         System.out.println("Which shelter would you like to update: ");
                         System.out.print("ShelterID: ");
                         int id = scnr.nextInt();
@@ -413,7 +412,7 @@ public class main {
                             System.out.println(e.getMessage());
                         }
                     }
-                    else if (input.equalsIgnoreCase("fosterhome")) {
+                    else if (input.equalsIgnoreCase("fosterhome") || input.equalsIgnoreCase("6")) {
                         System.out.println("Which foster home would you like to update: ");
                         System.out.print("FosterID: ");
                         int id = scnr.nextInt();
@@ -465,7 +464,7 @@ public class main {
                             System.out.println(e.getMessage());
                         }
                     }
-                    else if (input.equalsIgnoreCase("fosterassignment")) {
+                    else if (input.equalsIgnoreCase("fosterassignment") || input.equalsIgnoreCase("7")) {
                         System.out.println("Which foster assignment would you like to update: ");
                         System.out.print("FosterID: ");
                         int id = scnr.nextInt();
@@ -533,9 +532,10 @@ public class main {
                 input = scnr.nextLine();
             }
             else if (input.equalsIgnoreCase("run transaction")) {
-                Connection myCon = DriverManager.getConnection(url, username, password);
-                myCon.setAutoCommit(false);
+                Connection myCon = null;
                 try {
+                    myCon = DriverManager.getConnection(url, username, password);
+                    myCon.setAutoCommit(false);
                     System.out.println("Start transaction: ");
                     // Transaction 
 
