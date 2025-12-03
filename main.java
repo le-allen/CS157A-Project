@@ -1,8 +1,8 @@
 import java.sql.*;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class main {
-    
     public static void main(String[] args) throws Exception {
         String url = "jdbc:mysql://localhost:3306/pet_project";
         String username = "root";
@@ -119,6 +119,19 @@ public class main {
                 System.out.println("Please enter the following data for insertion: ");
                 System.out.print("Table: ");
                 input = scnr.nextLine();
+                String[] inputArr = input.split(" ");
+                String table = inputArr[0];
+                
+                Connection myCon = DriverManager.getConnection(url, username, password);
+                Inserter inserter = new Inserter();
+                inserter.insertData(myCon, table, Arrays.copyOfRange(inputArr, 1, inputArr.length));
+                scnr.next();
+            }
+            else if (input.equalsIgnoreCase("update")) {
+                System.out.println("Please enter the following data for update: ");
+                System.out.print("Table: ");
+                input = scnr.nextLine();
+                
 
             }
             else if (input.equalsIgnoreCase("update")) {
@@ -590,3 +603,4 @@ public class main {
         scnr.close();
     }
 }
+    
