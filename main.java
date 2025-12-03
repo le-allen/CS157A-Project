@@ -533,7 +533,51 @@ public class main {
                 input = scnr.nextLine();
             }
             else if (input.equalsIgnoreCase("run transaction")) {
+                Connection myCon = DriverManager.getConnection(url, username, password);
+                myCon.setAutoCommit(false);
+                try {
+                    System.out.println("Start transaction: ");
+                    // Transaction 
 
+                    // Statement 1
+                    PreparedStatement adopt = myCon.prepareStatement("INSERT INTO Adoption VALUES (?, ?, ?)");
+                    adopt.setInt(1, 1);
+                    adopt.setInt(2, 205);
+                    adopt.setDate(3, java.sql.Date.valueOf("2025-11-22"));
+                    adopt.executeUpdate();
+                    // Statement 2
+                    PreparedStatement medical = myCon.prepareStatement("UPDATE MedicalHistory SET HealthStatus=?, VaccinationStatus=? WHERE PetID=?");
+                    medical.setString(1, "Healthy");
+                    medical.setBoolean(2, true);
+                    medical.setInt(3, 1);
+                    medical.executeUpdate();
+
+                    myCon.commit();
+                    System.out.println("Transaction committed.");
+
+                } catch (SQLException e) {
+                    System.out.println("Roll back transaction.");
+                    myCon.rollback();
+                } finally {
+                    System.out.println("Table Adoption Updated: ");
+                    PreparedStatement viewAdopt = myCon.prepareStatement("SELECT * FROM Adoption");
+                    ResultSet rs = viewAdopt.executeQuery();
+
+                    while (rs.next()) {
+                        System.out.println(rs.getInt("PetID") + "\t" +
+                                            rs.getInt("AdopterID") + "\t" + 
+                                            rs.getDate("AdoptionDate") + "\t");
+                    }
+
+                    System.out.println("Table MedicalHistory Updated: ");
+                    PreparedStatement viewMedical = myCon.prepareStatement("SELECT * FROM MedicalHistory");
+                    rs = viewMedical.executeQuery();
+                    while (rs.next()) {
+                        System.out.println(rs.getInt("PetID") + "\t" +
+                                            rs.getString("HealthStatus") + "\t" + 
+                                            rs.getBoolean("VaccinationStatus") + "\t");
+                    }
+                }
             }
             else if (input.equalsIgnoreCase("exit")) {
                 System.out.println("Thank you for using our pet adoption system");
