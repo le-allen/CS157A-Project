@@ -1,12 +1,30 @@
 import java.sql.*;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 public class main {
     public static void main(String[] args) throws Exception {
-        String url = "jdbc:mysql://localhost:3306/pet_project";
-        String username = "root";
-        String password = "password";
+        String url = null;
+        String username = null;
+        String password = null;
+
+        Properties properties = new Properties();
+        FileInputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream("app.properties");
+            properties.load(inputStream);
+
+            url = properties.getProperty("database.url");
+            username = properties.getProperty("database.username");
+            password = properties.getProperty("database.password"); 
+        }
+        catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+
         Class.forName("com.mysql.cj.jdbc.Driver");
 
         System.out.println("Hello, Welcome to the CS157a Pet Adoption System!");
@@ -126,13 +144,6 @@ public class main {
                 Inserter inserter = new Inserter();
                 inserter.insertData(myCon, table, Arrays.copyOfRange(inputArr, 1, inputArr.length));
                 scnr.next();
-            }
-            else if (input.equalsIgnoreCase("update")) {
-                System.out.println("Please enter the following data for update: ");
-                System.out.print("Table: ");
-                input = scnr.nextLine();
-                
-
             }
             else if (input.equalsIgnoreCase("update")) {
                 while (!input.equalsIgnoreCase("back")) {
@@ -543,6 +554,85 @@ public class main {
                 System.out.println("Please enter the following data for delete: ");
                 System.out.print("Table: ");
                 input = scnr.nextLine();
+
+                Connection myCon = DriverManager.getConnection(url, username, password);
+                String PK = "";
+                int affectedRows = 0;
+
+                try {
+
+                    if (input.equalsIgnoreCase("pet") || input.equalsIgnoreCase("medicalhistory")) {
+                        System.out.print("Please enter the corresponding PetID that you want to delete: ");
+                        PK = scnr.nextLine();
+                        String sql = "DELETE FROM " + input + " WHERE PetID = " + PK;
+                        PreparedStatement delete = myCon.prepareStatement(sql);
+                        affectedRows = delete.executeUpdate();
+
+                    } else if (input.equalsIgnoreCase("adopter")) {
+                        System.out.print("Please enter the corresponding AdopterID that you want to delete: ");
+                        PK = scnr.nextLine();
+                        String sql = "DELETE FROM " + input + " WHERE AdopterID = " + PK;
+                        PreparedStatement delete = myCon.prepareStatement(sql);
+                        affectedRows = delete.executeUpdate();
+
+                    } else if (input.equalsIgnoreCase("shelter")) {
+                        System.out.print("Please enter the corresponding ShelterID that you want to delete: ");
+                        PK = scnr.nextLine();
+                        String sql = "DELETE FROM " + input + " WHERE ShelterID = " + PK;
+                        PreparedStatement delete = myCon.prepareStatement(sql);
+                        affectedRows = delete.executeUpdate();
+
+                    } else if (input.equalsIgnoreCase("fosterhome")) {
+                        System.out.print("Please enter the corresponding FosterID that you want to delete: ");
+                        PK = scnr.nextLine();
+                        String sql = "DELETE FROM " + input + " WHERE FosterID = " + PK;
+                        PreparedStatement delete = myCon.prepareStatement(sql);
+                        affectedRows = delete.executeUpdate();
+
+                    } else if (input.equalsIgnoreCase("adoption")) {
+                        System.out.print("Please enter PetID: ");
+                        int petID = Integer.parseInt(scnr.nextLine());
+
+                        System.out.print("Please enter AdopterID: ");
+                        int adopterID = Integer.parseInt(scnr.nextLine());
+
+                        System.out.print("Please enter AdoptionDate in the format of (yyyy-mm-dd): ");
+                        String adoptionDate = scnr.nextLine();
+
+                        String sql = "DELETE FROM adoption WHERE PetID = ? AND AdopterID = ? AND AdoptionDate = ?";
+                        PreparedStatement delete = myCon.prepareStatement(sql);
+                        delete.setInt(1, petID);
+                        delete.setInt(2, adopterID);
+                        delete.setDate(3, java.sql.Date.valueOf(adoptionDate));
+                        affectedRows = delete.executeUpdate();
+
+                    } else if (input.equalsIgnoreCase("fosterassignment")) {
+                        System.out.print("Please enter FosterID: ");
+                        int fosterID = Integer.parseInt(scnr.nextLine());
+
+                        System.out.print("Please enter PetID: ");
+                        int petID = Integer.parseInt(scnr.nextLine());
+
+                        System.out.print("Please enter StartDate in the format of (yyyy-mm-dd): ");
+                        String startDate = scnr.nextLine();
+
+                        String sql = "DELETE FROM fosterassignment WHERE FosterID = ? AND PetID = ? AND StartDate = ?";
+                        PreparedStatement delete = myCon.prepareStatement(sql);
+                        delete.setInt(1, fosterID);
+                        delete.setInt(2, petID);
+                        delete.setDate(3, java.sql.Date.valueOf(startDate));
+                        affectedRows = delete.executeUpdate();
+                    }
+                } catch (SQLIntegrityConstraintViolationException e) {
+                    System.out.println("Please only delete the shelter only when it is empty");
+                    return;
+                }
+
+                if (affectedRows > 0) {
+                    System.out.println("Successfully deleted.");
+                } else {
+                    System.out.println("Didn't find the matching row.");
+                }
             }
             else if (input.equalsIgnoreCase("run transaction")) {
                 Connection myCon = null;
@@ -603,4 +693,3 @@ public class main {
         scnr.close();
     }
 }
-    
