@@ -134,8 +134,8 @@ public class main {
 
             }
             else if (input.equalsIgnoreCase("insert")) {
-                System.out.println("Please enter the following data for insertion: ");
-                System.out.print("Table: ");
+                System.out.println("Please enter the following data for insertion: (Values must be in the exact format as the table schema)");
+                System.out.print("table values[]: ");
                 input = scnr.nextLine();
                 String[] inputArr = input.split(" ");
                 String table = inputArr[0];

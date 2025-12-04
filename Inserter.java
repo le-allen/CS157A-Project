@@ -6,10 +6,12 @@ import java.util.Arrays;
 
 public class Inserter {
     public void insertData(Connection conn, String table, String[] values) {
+        String fields = "";
         try {
             if (table.equalsIgnoreCase("pet")) {
                 String sql = "INSERT INTO Pet (PetID, ShelterID, Name, Species, Age, Status) VALUES (?, ?, ?, ?, ?, ?)";
                 PreparedStatement ps = conn.prepareStatement(sql);
+                fields = "PetID, ShelterID, Name, Species, Age, Status";
 
                 ps.setInt(1, Integer.parseInt(values[0]));
                 ps.setInt(2, Integer.parseInt(values[1]));
@@ -23,6 +25,7 @@ public class Inserter {
             } else if(table.equalsIgnoreCase("medical mistory")) {
                 String sql = "INSERT INTO MedicalHistory (PetID, HealthStatus, VaccinationStatus) VALUES (?, ?, ?)";
                 PreparedStatement ps = conn.prepareStatement(sql);
+                fields = "PetID, HealthStatus, VaccinationStatus";
 
                 ps.setInt(1, Integer.parseInt(values[0]));
                 ps.setString(2, values[1]);
@@ -33,6 +36,7 @@ public class Inserter {
             } else if (table.equalsIgnoreCase("adopter")) {
                 String sql = "INSERT INTO Adopter (AdopterID, Name, Number) VALUES (?, ?, ?)";
                 PreparedStatement ps = conn.prepareStatement(sql);
+                fields = "AdopterID, Name, Number";
 
                 ps.setInt(1, Integer.parseInt(values[0]));
                 ps.setString(2, values[1]);
@@ -43,6 +47,7 @@ public class Inserter {
             } else if (table.equalsIgnoreCase("adoption")) {
                 String sql = "INSERT INTO Adoption (PetID, AdopterID, AdoptionDate) VALUES (?, ?, ?)";
                 PreparedStatement ps = conn.prepareStatement(sql);
+                fields = "PetID, AdopterID, AdoptionDate";
 
                 ps.setInt(1, Integer.parseInt(values[0]));
                 ps.setInt(2, Integer.parseInt(values[1]));
@@ -53,6 +58,7 @@ public class Inserter {
             } else if (table.equalsIgnoreCase("shelter")) {
                 String sql = "INSERT INTO Shelter (ShelterID, Address) VALUES (?, ?)";
                 PreparedStatement ps = conn.prepareStatement(sql);
+                fields = "ShelterID, Address";
 
                 ps.setInt(1, Integer.parseInt(values[0]));
                 ps.setString(2, values[1]);
@@ -62,6 +68,7 @@ public class Inserter {
             } else if (table.equalsIgnoreCase("foster home")) {
                 String sql = "INSERT INTO FosterHome (FosterID, Address, Number) VALUES (?, ?, ?)";
                 PreparedStatement ps = conn.prepareStatement(sql);
+                fields = "FosterID, Address, Number";
 
                 ps.setInt(1, Integer.parseInt(values[0]));
                 ps.setString(2, values[1]);
@@ -72,6 +79,7 @@ public class Inserter {
             } else if (table.equalsIgnoreCase("foster assignment")) {
                 String sql = "INSERT INTO FosterAssignemnt (FosterID, PetID, StartDate, EndDate) VALUES (?, ?, ?, ?)";
                 PreparedStatement ps = conn.prepareStatement(sql);
+                fields = "FosterID, PetID, StartDate, EndDate";
 
                 ps.setInt(1, Integer.parseInt(values[0]));
                 ps.setInt(2, Integer.parseInt(values[1]));
@@ -85,6 +93,8 @@ public class Inserter {
             }
         } catch (SQLException e) {
             System.out.println("SQL error on insert: " + e.getMessage());
+            System.out.println("For table: " + table + " with values: " + Arrays.toString(values));
+            System.out.println("Try checking formating. Expected fields for " + table + "(in exact order): " + fields);
         }
     }
 }
