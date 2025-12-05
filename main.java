@@ -14,12 +14,21 @@ class Inserter {
                 PreparedStatement ps = conn.prepareStatement(sql);
                 fields = "PetID, ShelterID, Name, Species, Age, Status";
 
+                // For names that have spaces
+                String name = "";
+                if (values.length > 6) {
+                    for (int i = 2; i < values.length - 3; i++) {
+                        name += values[i] + " ";
+                    }
+                }
+                // Messes up if species has spaces but I cant think of any
+
                 ps.setInt(1, Integer.parseInt(values[0]));
                 ps.setInt(2, Integer.parseInt(values[1]));
-                ps.setString(3, values[2]);
-                ps.setString(4, values[3]);
-                ps.setInt(5, Integer.parseInt(values[4]));
-                ps.setString(6, values[5]);
+                ps.setString(3, name.trim());
+                ps.setString(4, values[values.length - 3]);
+                ps.setInt(5, Integer.parseInt(values[values.length - 2]));
+                ps.setString(6, values[values.length - 1]);
 
                 int rowsAffected = ps.executeUpdate();
                 System.out.println(rowsAffected + " row(s) affected. " + Arrays.toString(values));
@@ -37,11 +46,18 @@ class Inserter {
             } else if (table.equalsIgnoreCase("adopter")) {
                 String sql = "INSERT INTO Adopter (AdopterID, Name, Number) VALUES (?, ?, ?)";
                 PreparedStatement ps = conn.prepareStatement(sql);
-                fields = "AdopterID, Name, Number";
+                fields = "AdopterID, Name, Number"; // Pray number does not have spaces
+
+                String name = "";
+                if (values.length > 6) {
+                    for (int i = 2; i < values.length - 1; i++) {
+                        name += values[i] + " ";
+                    }
+                }
 
                 ps.setInt(1, Integer.parseInt(values[0]));
-                ps.setString(2, values[1]);
-                ps.setString(3, values[2]);
+                ps.setString(2, name.trim());
+                ps.setString(3, values[values.length - 1]);
 
                 int rowsAffected = ps.executeUpdate();
                 System.out.println(rowsAffected + " row(s) affected. " + Arrays.toString(values));
@@ -62,7 +78,14 @@ class Inserter {
                 fields = "ShelterID, Address";
 
                 ps.setInt(1, Integer.parseInt(values[0]));
-                ps.setString(2, values[1]);
+
+                // Re assemble string for address
+                String address = "";
+                for (int i = 1; i < values.length; i++) {
+                    address += " " + values[i];
+                }
+                
+                ps.setString(2, address);
 
                 int rowsAffected = ps.executeUpdate();
                 System.out.println(rowsAffected + " row(s) affected. " + Arrays.toString(values));
@@ -71,9 +94,14 @@ class Inserter {
                 PreparedStatement ps = conn.prepareStatement(sql);
                 fields = "FosterID, Address, Number";
 
+                String address = values[1];
+                for (int i = 1; i < values.length - 1; i++) {
+                    address += " " + values[i + 1];
+                }
+
                 ps.setInt(1, Integer.parseInt(values[0]));
-                ps.setString(2, values[1]);
-                ps.setString(3, values[2]);
+                ps.setString(2, address);
+                ps.setString(3, values[values.length - 1]);
 
                 int rowsAffected = ps.executeUpdate();
                 System.out.println(rowsAffected + " row(s) affected. " + Arrays.toString(values));
