@@ -104,3 +104,8 @@ Select a table
 Enter the ID of the row to be deleted.  
 
 ![Screenshot of a successful delete](screenshots/SSdelete.webp)
+
+## Transactions
+The program uses transactions to make atomic, consistent, isolated, and durable changes to the database. Here is an example of a rollback to handle an error. In this case, PetID 12 does not exist, so it rolls back the change.  
+
+![Screenshot of rollback](screenshots/SSrollback.png)
