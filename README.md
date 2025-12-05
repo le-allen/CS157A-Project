@@ -17,6 +17,8 @@ Before running the JDBC application:
         database.username=root
         database.password=password
 
+![Screenshot of app.properties](screenshots/SSproperties.webp)
+
 Once the database and app.properties have been properly configured, you can
 now run main.java to access our Pet Adoption System.
 
@@ -83,14 +85,22 @@ java -cp .:lib/mysql-connector.jar main
 ```
 
 ### View Data
-Choose a number from the list or type in the name of the table to be viewed.
+Choose a number from the list or type in the name of the table to be viewed.  
+
+![Screenshot of view table being used](screenshots/SSviewtable.webp)
 ### Insert
 In one line, write the table name followed by the arguments exactly matching the schema of the table that is being inserted into.  
-See [Tables](#Tables)
+See [Tables](#Tables)  
+
+![Screenshot of a successful insert](screenshots/SSinsert.webp)
 ### Update
 Select a table  
 Enter the ID of the row to be updated  
-Update the value.
+Update the value.  
+
+![Screenshot of a successful update](screenshots/SSupdate.webp)
 ### Delete
 Select a table  
-Enter the ID of the row to be deleted.
+Enter the ID of the row to be deleted.  
+
+![Screenshot of a successful delete](screenshots/SSdelete.webp)
