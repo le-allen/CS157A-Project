@@ -1,12 +1,15 @@
+
 import java.sql.*;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.io.FileInputStream;
 import java.io.IOException;
+
 import java.util.Properties;
 
 class Inserter {
-    public void insertData(Connection conn, String table, String[] values) {
+
+    public void insertData(Connection conn, String table, String[] values) throws SQLException{
         String fields = "";
         try {
             if (table.equalsIgnoreCase("pet")) {
@@ -14,25 +17,17 @@ class Inserter {
                 PreparedStatement ps = conn.prepareStatement(sql);
                 fields = "PetID, ShelterID, Name, Species, Age, Status";
 
-                // For names that have spaces
-                String name = "";
-                if (values.length > 6) {
-                    for (int i = 2; i < values.length - 3; i++) {
-                        name += values[i] + " ";
-                    }
-                }
-                // Messes up if species has spaces but I cant think of any
-
                 ps.setInt(1, Integer.parseInt(values[0]));
                 ps.setInt(2, Integer.parseInt(values[1]));
-                ps.setString(3, name.trim());
-                ps.setString(4, values[values.length - 3]);
-                ps.setInt(5, Integer.parseInt(values[values.length - 2]));
-                ps.setString(6, values[values.length - 1]);
+                ps.setString(3, values[2]);
+                ps.setString(4, values[3]);
+                ps.setInt(5, Integer.parseInt(values[4]));
+                ps.setString(6, values[5]);
 
                 int rowsAffected = ps.executeUpdate();
                 System.out.println(rowsAffected + " row(s) affected. " + Arrays.toString(values));
-            } else if(table.equalsIgnoreCase("medicalhistory")) {
+
+            } else if (table.equalsIgnoreCase("medicalhistory")) {
                 String sql = "INSERT INTO MedicalHistory (PetID, HealthStatus, VaccinationStatus) VALUES (?, ?, ?)";
                 PreparedStatement ps = conn.prepareStatement(sql);
                 fields = "PetID, HealthStatus, VaccinationStatus";
@@ -46,31 +41,38 @@ class Inserter {
             } else if (table.equalsIgnoreCase("adopter")) {
                 String sql = "INSERT INTO Adopter (AdopterID, Name, Number) VALUES (?, ?, ?)";
                 PreparedStatement ps = conn.prepareStatement(sql);
-                fields = "AdopterID, Name, Number"; // Pray number does not have spaces
-
-                String name = "";
-                if (values.length > 6) {
-                    for (int i = 2; i < values.length - 1; i++) {
-                        name += values[i] + " ";
-                    }
-                }
+                fields = "AdopterID, Name, Number";
 
                 ps.setInt(1, Integer.parseInt(values[0]));
-                ps.setString(2, name.trim());
-                ps.setString(3, values[values.length - 1]);
+                ps.setString(2, values[1]);
+                ps.setString(3, values[2]);
 
                 int rowsAffected = ps.executeUpdate();
                 System.out.println(rowsAffected + " row(s) affected. " + Arrays.toString(values));
             } else if (table.equalsIgnoreCase("adoption")) {
+                conn.setAutoCommit(false);
+
                 String sql = "INSERT INTO Adoption (PetID, AdopterID, AdoptionDate) VALUES (?, ?, ?)";
                 PreparedStatement ps = conn.prepareStatement(sql);
                 fields = "PetID, AdopterID, AdoptionDate";
 
+                String sql_check = "SELECT * FROM PET WHERE PetID = ?";
+                PreparedStatement ps_check = conn.prepareStatement(sql_check);
+                
+                ps_check.setInt(1, Integer.parseInt(values[0]));
+                ResultSet rs_check = ps_check.executeQuery();
+
+                if (!rs_check.next()){
+                    System.out.println("Please enter a valid PetID. Adoption insertion failed, rollback.");
+                    conn.rollback();
+                }
+                
                 ps.setInt(1, Integer.parseInt(values[0]));
                 ps.setInt(2, Integer.parseInt(values[1]));
                 ps.setDate(3, Date.valueOf(values[2]));
 
                 int rowsAffected = ps.executeUpdate();
+                conn.commit();
                 System.out.println(rowsAffected + " row(s) affected. " + Arrays.toString(values));
             } else if (table.equalsIgnoreCase("shelter")) {
                 String sql = "INSERT INTO Shelter (ShelterID, Address) VALUES (?, ?)";
@@ -78,14 +80,7 @@ class Inserter {
                 fields = "ShelterID, Address";
 
                 ps.setInt(1, Integer.parseInt(values[0]));
-
-                // Re assemble string for address
-                String address = "";
-                for (int i = 1; i < values.length; i++) {
-                    address += " " + values[i];
-                }
-                
-                ps.setString(2, address);
+                ps.setString(2, values[1]);
 
                 int rowsAffected = ps.executeUpdate();
                 System.out.println(rowsAffected + " row(s) affected. " + Arrays.toString(values));
@@ -106,14 +101,9 @@ class Inserter {
                 PreparedStatement ps = conn.prepareStatement(sql);
                 fields = "FosterID, Address, Number";
 
-                String address = values[1];
-                for (int i = 1; i < values.length - 1; i++) {
-                    address += " " + values[i + 1];
-                }
-
                 ps.setInt(1, Integer.parseInt(values[0]));
-                ps.setString(2, address);
-                ps.setString(3, values[values.length - 1]);
+                ps.setString(2, values[1]);
+                ps.setString(3, values[2]);
 
                 int rowsAffected = ps.executeUpdate();
                 System.out.println(rowsAffected + " row(s) affected. " + Arrays.toString(values));
@@ -141,6 +131,7 @@ class Inserter {
 }
 
 public class main {
+
     public static void main(String[] args) throws Exception {
         String url = null;
         String username = null;
@@ -149,14 +140,14 @@ public class main {
         Properties properties = new Properties();
         FileInputStream inputStream = null;
         try {
+
             inputStream = new FileInputStream("app.properties");
             properties.load(inputStream);
 
             url = properties.getProperty("database.url");
             username = properties.getProperty("database.username");
-            password = properties.getProperty("database.password"); 
-        }
-        catch (IOException e) {
+            password = properties.getProperty("database.password");
+        } catch (IOException e) {
             System.out.println(e.getMessage());
         }
 
@@ -166,8 +157,7 @@ public class main {
         Scanner scnr = new Scanner(System.in);
         while (true) {
             System.out.println("What would you like to do today?");
-            System.out.println("Please Enter One of the Following: View Data, Insert, Update, Delete, Run Transaction, Exit");
-            
+            System.out.println("Please Enter One of the Following: View Data, Insert, Update, Delete, Exit");
 
             String input = scnr.nextLine();
 
@@ -189,87 +179,81 @@ public class main {
                         PreparedStatement ps = myCon.prepareStatement(sql);
                         ResultSet rs = ps.executeQuery();
                         System.out.println();
+                        System.out.println("----------------------------------------------------------------------");
 
                         if (input.equalsIgnoreCase("pet") || input.equalsIgnoreCase("1")) {
+
                             System.out.println("Here is the " + input + " data:");
                             System.out.println("PetID:" + "\t" + "ShelterID:" + "\t" + "Name:" + "\t" + "Species:" + "\t" + "Age:" + "\t" + "Status:" + "\t");
                             while (rs.next()) {
-                                System.out.println(rs.getInt("PetID") + "\t" +
-                                                    rs.getInt("ShelterID") + "\t" + 
-                                                    rs.getString("Name") + "\t" + 
-                                                    rs.getString("Species") + "\t" + 
-                                                    rs.getInt("Age") + "\t" + 
-                                                    rs.getString("Status") + "\t");
+                                System.out.println(rs.getInt("PetID") + "\t"
+                                        + rs.getInt("ShelterID") + "\t\t"
+                                        + rs.getString("Name") + "\t"
+                                        + rs.getString("Species") + "\t\t"
+                                        + rs.getInt("Age") + "\t"
+                                        + rs.getString("Status") + "\t");
                             }
-                        }
-                        else if (input.equalsIgnoreCase("medicalhistory") || input.equalsIgnoreCase("2")) {
+                        } else if (input.equalsIgnoreCase("medicalhistory") || input.equalsIgnoreCase("2")) {
                             System.out.println("Here is the " + input + " data:");
-                            System.out.println("PetID:" + "\t" + "HealthStatus:" + "\t" + "VaccinationStatus:" + "\t");
+                            System.out.println("PetID:" + "\t" + "HealthStatus:" + "\t\t" + "VaccinationStatus:" + "\t");
                             while (rs.next()) {
-                                System.out.println(rs.getInt("PetID") + "\t" +
-                                                    rs.getString("HealthStatus") + "\t" + 
-                                                    rs.getBoolean("VaccinationStatus") + "\t");
+                                System.out.println(rs.getInt("PetID") + "\t"
+                                        + rs.getString("HealthStatus") + "\t\t\t"
+                                        + rs.getBoolean("VaccinationStatus") + "\t");
                             }
-                        }
-                        else if (input.equalsIgnoreCase("adopter") || input.equalsIgnoreCase("3")) {
+                        } else if (input.equalsIgnoreCase("adopter") || input.equalsIgnoreCase("3")) {
                             System.out.println("Here is the " + input + " data:");
-                            System.out.println("AdopterID:" + "\t" + "Name:" + "\t" + "Number:" + "\t");
+                            System.out.println("AdopterID:" + "\t" + "Name:" + "\t\t" + "Number:" + "\t");
                             while (rs.next()) {
-                                System.out.println(rs.getInt("AdopterID") + "\t" +
-                                                    rs.getString("Name") + "\t" + 
-                                                    rs.getString("Number") + "\t");
+                                System.out.println(rs.getInt("AdopterID") + "\t\t"
+                                        + rs.getString("Name") + "\t"
+                                        + rs.getString("Number") + "\t");
                             }
-                        }
-                        else if (input.equalsIgnoreCase("adoption") || input.equalsIgnoreCase("4")) {
+                        } else if (input.equalsIgnoreCase("adoption") || input.equalsIgnoreCase("4")) {
                             System.out.println("Here is the " + input + " data:");
                             System.out.println("PetID:" + "\t" + "AdopterID:" + "\t" + "AdoptionDate:" + "\t");
                             while (rs.next()) {
-                                System.out.println(rs.getInt("PetID") + "\t" +
-                                                    rs.getInt("AdopterID") + "\t" + 
-                                                    rs.getDate("AdoptionDate") + "\t");
+                                System.out.println(rs.getInt("PetID") + "\t"
+                                        + rs.getInt("AdopterID") + "\t\t"
+                                        + rs.getDate("AdoptionDate") + "\t");
                             }
-                        }
-                        else if (input.equalsIgnoreCase("shelter") || input.equalsIgnoreCase("5")) {
+                        } else if (input.equalsIgnoreCase("shelter") || input.equalsIgnoreCase("5")) {
                             System.out.println("Here is the " + input + " data:");
                             System.out.println("ShelterID:" + "\t" + "Address:" + "\t");
                             while (rs.next()) {
-                                System.out.println(rs.getInt("ShelterID") + "\t" +
-                                                    rs.getString("Address") + "\t");
+                                System.out.println(rs.getInt("ShelterID") + "\t\t"
+                                        + rs.getString("Address") + "\t");
                             }
-                        }
-                        else if (input.equalsIgnoreCase("fosterhome") || input.equalsIgnoreCase("6")) {
+                        } else if (input.equalsIgnoreCase("fosterhome") || input.equalsIgnoreCase("6")) {
                             System.out.println("Here is the " + input + " data:");
-                            System.out.println("FosterID:" + "\t" + "Address:" + "\t" + "Number:" + "\t");
+                            System.out.println("FosterID:" + "\t" + "Address:" + "\t\t\t\t" + "Number:" + "\t");
                             while (rs.next()) {
-                                System.out.println(rs.getInt("FosterID") + "\t" +
-                                                    rs.getString("Address") + "\t" +
-                                                    rs.getString("Number") + "\t");
+                                System.out.println(rs.getInt("FosterID") + "\t\t"
+                                        + rs.getString("Address") + "\t\t"
+                                        + rs.getString("Number") + "\t");
                             }
-                        }
-                        else if (input.equalsIgnoreCase("fosterassignment") || input.equalsIgnoreCase("7")) {
+                        } else if (input.equalsIgnoreCase("fosterassignment") || input.equalsIgnoreCase("7")) {
                             System.out.println("Here is the " + input + " data:");
                             System.out.println("FosterID:" + "\t" + "PetID:" + "\t" + "StartDate:" + "\t" + "EndDate:" + "\t");
                             while (rs.next()) {
                                 System.out.println(rs.getInt("FosterID") + "\t" +
                                                     rs.getInt("PetID") + "\t" + 
-                                                    rs.getDate("StartDate") + "\t" + 
+                                                    rs.getDate("StateDate") + "\t" + 
                                                     rs.getDate("EndDate") + "\t");
                             }
-                        }
-                        else {
+                        } else {
                             System.out.println("Sorry, that table does not exist. Please try again:");
                         }
 
+                        System.out.println("----------------------------------------------------------------------");
                         System.out.println();
                         myCon.close();
-                    }
-                    catch (SQLException e) {
+                    } catch (SQLException e) {
                         System.out.println(e.getMessage());
                     }
                 }
 
-            }
-            else if (input.equalsIgnoreCase("insert")) {
+            } else if (input.equalsIgnoreCase("insert")) {
                 System.out.println();
                 System.out.println("Please enter the following data for insertion: (Values must be in the exact format as the table schema)");
                 System.out.print("table values[]: ");
@@ -281,8 +265,7 @@ public class main {
                 Inserter inserter = new Inserter();
                 inserter.insertData(myCon, table, Arrays.copyOfRange(inputArr, 1, inputArr.length));
                 scnr.next();
-            }
-            else if (input.equalsIgnoreCase("update")) {
+            } else if (input.equalsIgnoreCase("update")) {
                 System.out.println();
                 while (!input.equalsIgnoreCase("back")) {
                     System.out.println("Please enter the following table to update: ");
@@ -331,8 +314,7 @@ public class main {
                                 if (rows > 0) {
                                     System.out.println("Update Successful!");
                                 }
-                            }
-                            else if (update.equalsIgnoreCase("Species")) {
+                            } else if (update.equalsIgnoreCase("Species")) {
                                 System.out.print("Enter new Species: ");
                                 update = scnr.nextLine();
                                 sql = "UPDATE Pet SET Species = ? WHERE PetID = ?";
@@ -343,8 +325,7 @@ public class main {
                                 if (rows > 0) {
                                     System.out.println("Update Successful!");
                                 }
-                            }
-                            else if (update.equalsIgnoreCase("Age")) {
+                            } else if (update.equalsIgnoreCase("Age")) {
                                 System.out.print("Enter new Age: ");
                                 update = scnr.nextLine();
                                 sql = "UPDATE Pet SET Age = ? WHERE PetID = ?";
@@ -355,8 +336,7 @@ public class main {
                                 if (rows > 0) {
                                     System.out.println("Update Successful!");
                                 }
-                            }
-                            else if (update.equalsIgnoreCase("Status")) {
+                            } else if (update.equalsIgnoreCase("Status")) {
                                 System.out.println("Enter new status as written: (Available, Adopted, Fostered, Unavailable)");
                                 update = scnr.nextLine();
                                 if (update.equalsIgnoreCase("available") || update.equalsIgnoreCase("adopted") || update.equalsIgnoreCase("fostered") || update.equalsIgnoreCase("unavailable")) {
@@ -368,19 +348,16 @@ public class main {
                                     if (rows > 0) {
                                         System.out.println("Update Successful!");
                                     }
-                                }
-                                else {
+                                } else {
                                     System.out.println("Inavlid Status: Please try again");
                                 }
                             }
 
                             myCon.close();
-                        }
-                        catch (SQLException e) {
+                        } catch (SQLException e) {
                             System.out.println(e.getMessage());
                         }
-                    }
-                    else if (input.equalsIgnoreCase("medicalhistory") || input.equalsIgnoreCase("2")) {
+                    } else if (input.equalsIgnoreCase("medicalhistory") || input.equalsIgnoreCase("2")) {
                         System.out.println("Which pet would you like to update: ");
                         System.out.print("PetID: ");
                         int id = scnr.nextInt();
@@ -415,12 +392,10 @@ public class main {
                                     if (rows > 0) {
                                         System.out.println("Update Successful!");
                                     }
-                                }
-                                else {
+                                } else {
                                     System.out.println("Invalid Status: Please try again");
                                 }
-                            }
-                            else if (update.equalsIgnoreCase("VaccinationStatus")) {
+                            } else if (update.equalsIgnoreCase("VaccinationStatus")) {
                                 System.out.println("Enter new status as written: (true, false)");
                                 update = scnr.nextLine();
                                 sql = "UPDATE MedicalHistory SET VaccinationStatus = ? WHERE PetID = ?";
@@ -432,12 +407,10 @@ public class main {
                                     System.out.println("Update Successful!");
                                 }
                             }
-                        }
-                        catch (SQLException e) {
+                        } catch (SQLException e) {
                             System.out.println(e.getMessage());
                         }
-                    }
-                    else if (input.equalsIgnoreCase("adopter") || input.equalsIgnoreCase("3")) {
+                    } else if (input.equalsIgnoreCase("adopter") || input.equalsIgnoreCase("3")) {
                         System.out.println("Which adopter would you like to update: ");
                         System.out.print("AdopterID: ");
                         int id = scnr.nextInt();
@@ -471,8 +444,7 @@ public class main {
                                 if (rows > 0) {
                                     System.out.println("Update Successful!");
                                 }
-                            }
-                            else if (update.equalsIgnoreCase("Number")) {
+                            } else if (update.equalsIgnoreCase("Number")) {
                                 System.out.print("Enter new number as XXX-XXXX: ");
                                 update = scnr.nextLine();
                                 sql = "UPDATE Adopter SET Number = ? WHERE AdopterID = ?";
@@ -484,12 +456,10 @@ public class main {
                                     System.out.println("Update Successful!");
                                 }
                             }
-                        }
-                        catch (SQLException e) {
+                        } catch (SQLException e) {
                             System.out.println(e.getMessage());
                         }
-                    }
-                    else if (input.equalsIgnoreCase("adoption") || input.equalsIgnoreCase("4")) {
+                    } else if (input.equalsIgnoreCase("adoption") || input.equalsIgnoreCase("4")) {
                         System.out.println("Which adoption would you like to update: ");
                         System.out.print("PetID: ");
                         int id = scnr.nextInt();
@@ -530,12 +500,10 @@ public class main {
                                     System.out.println("Update Successful!");
                                 }
                             }
-                        }
-                        catch (SQLException e) {
+                        } catch (SQLException e) {
                             System.out.println(e.getMessage());
                         }
-                    }
-                    else if (input.equalsIgnoreCase("shelter") || input.equalsIgnoreCase("5")) {
+                    } else if (input.equalsIgnoreCase("shelter") || input.equalsIgnoreCase("5")) {
                         System.out.println("Which shelter would you like to update: ");
                         System.out.print("ShelterID: ");
                         int id = scnr.nextInt();
@@ -569,12 +537,10 @@ public class main {
                                     System.out.println("Update Successful!");
                                 }
                             }
-                        }
-                        catch (SQLException e) {
+                        } catch (SQLException e) {
                             System.out.println(e.getMessage());
                         }
-                    }
-                    else if (input.equalsIgnoreCase("fosterhome") || input.equalsIgnoreCase("6")) {
+                    } else if (input.equalsIgnoreCase("fosterhome") || input.equalsIgnoreCase("6")) {
                         System.out.println("Which foster home would you like to update: ");
                         System.out.print("FosterID: ");
                         int id = scnr.nextInt();
@@ -608,8 +574,7 @@ public class main {
                                 if (rows > 0) {
                                     System.out.println("Update Successful!");
                                 }
-                            }
-                            else if (update.equalsIgnoreCase("Number")) {
+                            } else if (update.equalsIgnoreCase("Number")) {
                                 System.out.print("Enter new number as XXX-XXXX: ");
                                 update = scnr.nextLine();
                                 sql = "UPDATE FosterHome SET Number = ? WHERE FosterID = ?";
@@ -621,12 +586,10 @@ public class main {
                                     System.out.println("Update Successful!");
                                 }
                             }
-                        }
-                        catch (SQLException e) {
+                        } catch (SQLException e) {
                             System.out.println(e.getMessage());
                         }
-                    }
-                    else if (input.equalsIgnoreCase("fosterassignment") || input.equalsIgnoreCase("7")) {
+                    } else if (input.equalsIgnoreCase("fosterassignment") || input.equalsIgnoreCase("7")) {
                         System.out.println("Which foster assignment would you like to update: ");
                         System.out.print("FosterID: ");
                         int id = scnr.nextInt();
@@ -667,8 +630,7 @@ public class main {
                                 if (rows > 0) {
                                     System.out.println("Update Successful!");
                                 }
-                            }
-                            else if (update.equalsIgnoreCase("EndDate")) {
+                            } else if (update.equalsIgnoreCase("EndDate")) {
                                 System.out.println("Enter new date: (YYYY-MM-DD)");
                                 update = scnr.nextLine();
                                 sql = "UPDATE FosterAssignment SET EndDate = ? WHERE FosterID = ? AND PetID = ?";
@@ -681,14 +643,12 @@ public class main {
                                     System.out.println("Update Successful!");
                                 }
                             }
-                        }
-                        catch (SQLException e) {
+                        } catch (SQLException e) {
                             System.out.println(e.getMessage());
                         }
                     }
                 }
-            }
-            else if (input.equalsIgnoreCase("delete")) {
+            } else if (input.equalsIgnoreCase("delete")) {
                 System.out.println();
                 System.out.println("Please enter the following data for delete: ");
                 System.out.print("Table: ");
@@ -764,7 +724,6 @@ public class main {
                     }
                 } catch (SQLIntegrityConstraintViolationException e) {
                     System.out.println("Please only delete the shelter only when it is empty");
-                    return;
                 }
 
                 if (affectedRows > 0) {
@@ -772,57 +731,7 @@ public class main {
                 } else {
                     System.out.println("Didn't find the matching row.");
                 }
-            }
-            else if (input.equalsIgnoreCase("run transaction")) {
-                System.out.println();
-                Connection myCon = null;
-                try {
-                    myCon = DriverManager.getConnection(url, username, password);
-                    myCon.setAutoCommit(false);
-                    System.out.println("Start transaction: ");
-                    // Transaction 
-
-                    // Statement 1
-                    PreparedStatement adopt = myCon.prepareStatement("INSERT INTO Adoption VALUES (?, ?, ?)");
-                    adopt.setInt(1, 1);
-                    adopt.setInt(2, 205);
-                    adopt.setDate(3, java.sql.Date.valueOf("2025-11-22"));
-                    adopt.executeUpdate();
-                    // Statement 2
-                    PreparedStatement medical = myCon.prepareStatement("UPDATE MedicalHistory SET HealthStatus=?, VaccinationStatus=? WHERE PetID=?");
-                    medical.setString(1, "Healthy");
-                    medical.setBoolean(2, true);
-                    medical.setInt(3, 1);
-                    medical.executeUpdate();
-
-                    myCon.commit();
-                    System.out.println("Transaction committed.");
-
-                } catch (SQLException e) {
-                    System.out.println("Roll back transaction.");
-                    myCon.rollback();
-                } finally {
-                    System.out.println("Table Adoption Updated: ");
-                    PreparedStatement viewAdopt = myCon.prepareStatement("SELECT * FROM Adoption");
-                    ResultSet rs = viewAdopt.executeQuery();
-
-                    while (rs.next()) {
-                        System.out.println(rs.getInt("PetID") + "\t" +
-                                            rs.getInt("AdopterID") + "\t" + 
-                                            rs.getDate("AdoptionDate") + "\t");
-                    }
-
-                    System.out.println("Table MedicalHistory Updated: ");
-                    PreparedStatement viewMedical = myCon.prepareStatement("SELECT * FROM MedicalHistory");
-                    rs = viewMedical.executeQuery();
-                    while (rs.next()) {
-                        System.out.println(rs.getInt("PetID") + "\t" +
-                                            rs.getString("HealthStatus") + "\t" + 
-                                            rs.getBoolean("VaccinationStatus") + "\t");
-                    }
-                }
-            }
-            else if (input.equalsIgnoreCase("exit")) {
+            } else if (input.equalsIgnoreCase("exit")) {
                 System.out.println("Thank you for using our pet adoption system");
                 System.out.println("Now closing...");
                 scnr.close();
