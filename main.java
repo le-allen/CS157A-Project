@@ -253,7 +253,7 @@ public class main {
                             while (rs.next()) {
                                 System.out.println(rs.getInt("FosterID") + "\t" +
                                                     rs.getInt("PetID") + "\t" + 
-                                                    rs.getDate("StateDate") + "\t" + 
+                                                    rs.getDate("StartDate") + "\t" + 
                                                     rs.getDate("EndDate") + "\t");
                             }
                         } else {
@@ -396,7 +396,7 @@ public class main {
                             String update = scnr.nextLine();
 
                             if (update.equalsIgnoreCase("HealthStatus")) {
-                                System.out.println("Enter new status as written: (Healthy, Sick, Injured, Chronic Condition");
+                                System.out.println("Enter new status as written: (Healthy, Sick, Injured, Chronic Condition)");
                                 update = scnr.nextLine();
                                 if (update.equalsIgnoreCase("Healthy") || update.equalsIgnoreCase("Sick") || update.equalsIgnoreCase("Injured") || update.equalsIgnoreCase("Chronic condition")) {
                                     sql = "UPDATE MedicalHistory SET HealthStatus = ? WHERE PetID = ?";
@@ -650,7 +650,7 @@ public class main {
                                 update = scnr.nextLine();
                                 sql = "UPDATE FosterAssignment SET EndDate = ? WHERE FosterID = ? AND PetID = ?";
                                 ps = myCon.prepareStatement(sql);
-                                ps.setDate(id2, java.sql.Date.valueOf(update));
+                                ps.setDate(1, java.sql.Date.valueOf(update));
                                 ps.setInt(2, id);
                                 ps.setInt(3, id2);
                                 int rows = ps.executeUpdate();
