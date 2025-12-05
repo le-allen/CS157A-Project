@@ -89,7 +89,19 @@ class Inserter {
 
                 int rowsAffected = ps.executeUpdate();
                 System.out.println(rowsAffected + " row(s) affected. " + Arrays.toString(values));
-            } else if (table.equalsIgnoreCase("foster home")) {
+            } else if (table.equalsIgnoreCase("fosterassignment")) {
+                String sql = "INSERT INTO FosterAssignment (FosterID, PetID, StartDate, EndDate) VALUES (?, ?, ?, ?)";
+                PreparedStatement ps = conn.prepareStatement(sql);
+                fields = "FosterID, PetID, StartDate, EndDate";
+
+                ps.setInt(1, Integer.parseInt(values[0]));
+                ps.setInt(2, Integer.parseInt(values[1]));
+                ps.setDate(3, Date.valueOf(values[2]));
+                ps.setDate(4, Date.valueOf(values[3]));
+
+                int rowsAffected = ps.executeUpdate();
+                System.out.println(rowsAffected + " row(s) affected. " + Arrays.toString(values));
+            } else if (table.equalsIgnoreCase("fosterhome")) {
                 String sql = "INSERT INTO FosterHome (FosterID, Address, Number) VALUES (?, ?, ?)";
                 PreparedStatement ps = conn.prepareStatement(sql);
                 fields = "FosterID, Address, Number";
@@ -105,7 +117,7 @@ class Inserter {
 
                 int rowsAffected = ps.executeUpdate();
                 System.out.println(rowsAffected + " row(s) affected. " + Arrays.toString(values));
-            } else if (table.equalsIgnoreCase("foster assignment")) {
+            } else if (table.equalsIgnoreCase("fosterassignment")) {
                 String sql = "INSERT INTO FosterAssignemnt (FosterID, PetID, StartDate, EndDate) VALUES (?, ?, ?, ?)";
                 PreparedStatement ps = conn.prepareStatement(sql);
                 fields = "FosterID, PetID, StartDate, EndDate";
@@ -240,7 +252,7 @@ public class main {
                             while (rs.next()) {
                                 System.out.println(rs.getInt("FosterID") + "\t" +
                                                     rs.getInt("PetID") + "\t" + 
-                                                    rs.getDate("StateDate") + "\t" + 
+                                                    rs.getDate("StartDate") + "\t" + 
                                                     rs.getDate("EndDate") + "\t");
                             }
                         }
@@ -264,7 +276,7 @@ public class main {
                 input = scnr.nextLine();
                 String[] inputArr = input.split(" ");
                 String table = inputArr[0];
-                
+
                 Connection myCon = DriverManager.getConnection(url, username, password);
                 Inserter inserter = new Inserter();
                 inserter.insertData(myCon, table, Arrays.copyOfRange(inputArr, 1, inputArr.length));
